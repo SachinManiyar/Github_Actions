@@ -1,6 +1,6 @@
 name: Verify Commit Signatures
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   verify-signatures:
