@@ -1,0 +1,29 @@
+name: Verify Commit Signatures
+
+on: [push, pull_request]
+
+jobs:
+  verify-signatures:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Verify commit signatures
+        run: |
+          # Fetch all commits in the push event
+          git fetch --depth=2
+
+          # Get the list of commits to check
+          COMMITS=$(git log --format=%H --no-merges HEAD~..HEAD)
+
+          # Check each commit for GPG signatures
+          for COMMIT in $COMMITS; do
+            if ! git log --show-signature -1 $COMMIT | grep -q 'gpgsig'; then
+              echo "Error: Commit $COMMIT is not signed with GPG."
+              exit 1
+            fi
+          done
+
+          echo "All commits are signed with GPG."
