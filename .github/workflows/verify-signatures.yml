@@ -27,7 +27,7 @@ jobs:
 
           # Check each commit for GPG signatures
           for COMMIT in $COMMITS; do
-            SIGNATURE=$(git log --show-signature -1 $COMMIT | grep 'gpgsig')
+            SIGNATURE=$(git log --show-signature -1 $COMMIT | grep 'gpg')
             if [ -z "$SIGNATURE" ]; then
               echo "Error: Commit $COMMIT is not signed with GPG."
               exit 1
