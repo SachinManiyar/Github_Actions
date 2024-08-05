@@ -18,12 +18,12 @@ jobs:
       - name: Fetch all commits
         run: |
           # Fetch the full commit history for the push event
-          git fetch --depth=50  # Increase depth if necessary to include all relevant commits
+          git fetch --depth=50  # Adjust depth if necessary
 
       - name: Verify commit signatures
         run: |
-          # Get the list of commits in the push event
-          COMMITS=$(git log --format=%H --no-merges HEAD~..HEAD)
+          # Get the list of commits from the push event
+          COMMITS=$(git log --format=%H --no-merges --reverse HEAD)
 
           # Check each commit for GPG signatures
           for COMMIT in $COMMITS; do
