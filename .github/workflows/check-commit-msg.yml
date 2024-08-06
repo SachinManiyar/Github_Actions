@@ -24,7 +24,7 @@ jobs:
         id: check-commit
         run: |
           # Define the JIRA task ID pattern
-          PATTERN="PROJ-[0-9]+"
+          PATTERN="^[A-Za-z]+-[0-9]+"
 
           # Read the commit message
           COMMIT_MESSAGE=$(cat commit-message.txt)
