@@ -1,4 +1,4 @@
-name: Check Commit Message
+name: Check Commit Messages
 
 on:
   push:
@@ -6,33 +6,36 @@ on:
       - main  # Adjust to your default branch or any branches you want to target
 
 jobs:
-  check-commit-message:
+  check-commit-messages:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Fetch all commits
+        run: |
+          # Fetch all commits for the push event
+          git fetch --prune --unshallow
+
       - name: Get commit messages
         id: get-commits
         run: |
-          # Fetch all commits in the push event
-          git fetch --depth=2
-          # Get the commit messages
-          git log --format=%B -n 1 HEAD > commit-message.txt
+          # Get commit messages for all commits in the push event
+          git log --format=%B --no-merges > commit-messages.txt
 
-      - name: Check commit message for JIRA task ID
-        id: check-commit
+      - name: Check commit messages for JIRA task IDs
+        id: check-commits
         run: |
           # Define the JIRA task ID pattern
           PATTERN="^[A-Za-z]+-[0-9]+"
 
-          # Read the commit message
-          COMMIT_MESSAGE=$(cat commit-message.txt)
+          # Read commit messages
+          COMMIT_MESSAGES=$(cat commit-messages.txt)
 
-          # Check if the commit message matches the pattern
-          if echo "$COMMIT_MESSAGE" | grep -P "$PATTERN"; then
-            echo "Commit message contains a valid JIRA task ID."
+          # Check each commit message for the JIRA task ID pattern
+          if echo "$COMMIT_MESSAGES" | grep -P "$PATTERN"; then
+            echo "All commit messages contain a valid JIRA task ID."
           else
-            echo "Commit message does not contain a valid JIRA task ID."
+            echo "One or more commit messages do not contain a valid JIRA task ID."
             exit 1
           fi
