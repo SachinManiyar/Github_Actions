@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main  # Adjust to your default branch or any branches you want to target
-
+      - feature
 jobs:
   check-commit-messages:
     runs-on: ubuntu-latest
