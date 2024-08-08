@@ -23,20 +23,21 @@ jobs:
 
       - name: Fetch all commits
         run: |
-          # Fetch the full commit history to include all commits relevant to the push or PR
+          # Ensure we have all commits
           git fetch --prune --unshallow
 
       - name: Verify commit signatures
         run: |
           # Determine the range of commits based on the event type
           if [ "$GITHUB_EVENT_NAME" == "push" ]; then
-            # For push events, verify commits from the last pushed commit to the current HEAD
+            # For push events, use the range from the previous commit to the current commit
             COMMITS=$(git log --format=%H --no-merges ${{ github.event.before }}..${{ github.sha }})
           elif [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-            # For pull requests, verify commits from the base branch to the PR head
+            # For pull requests, get the base and head branches
             BASE_BRANCH=${{ github.event.pull_request.base.ref }}
             HEAD_BRANCH=${{ github.event.pull_request.head.ref }}
             git fetch origin $BASE_BRANCH
+            git fetch origin $HEAD_BRANCH
             COMMITS=$(git log --format=%H --no-merges origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
           else
             echo "Unsupported event type: $GITHUB_EVENT_NAME"
