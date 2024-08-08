@@ -3,25 +3,28 @@ name: Check Commit Messages
 on:
   push:
     branches:
-      - '*'
+      - '*'  # Trigger for pushes to any branch
   pull_request:
-      - main    
+    branches:
+      - main  # Trigger for PRs targeting the main branch
+
 jobs:
   check-commit-messages:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Fetch all commits
         run: |
-          # Fetch all commits for the push event
+          # Fetch all commits for the push event or PR
           git fetch --prune --unshallow
 
       - name: Get commit messages
         id: get-commits
         run: |
-          # Get commit messages for all commits in the push event
+          # Get commit messages for all commits in the push event or PR
           git log --format=%B --no-merges > commit-messages.txt
 
       - name: Check commit messages for JIRA task IDs
