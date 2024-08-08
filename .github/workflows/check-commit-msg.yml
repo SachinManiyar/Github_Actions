@@ -3,8 +3,9 @@ name: Check Commit Messages
 on:
   push:
     branches:
-      - main  # Adjust to your default branch or any branches you want to target
-      - feature
+      - '*'
+  pull_request:
+      - main    
 jobs:
   check-commit-messages:
     runs-on: ubuntu-latest
