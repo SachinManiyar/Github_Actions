@@ -1,6 +1,12 @@
 name: Verify Commit Signatures
 
-on: [push]
+on:
+  push:
+    branches:
+      - '*'  # Trigger for pushes to any branch
+  pull_request:
+    branches:
+      - main  # Trigger for PRs targeting the main branch
 
 jobs:
   verify-signatures:
@@ -17,13 +23,25 @@ jobs:
 
       - name: Fetch all commits
         run: |
-          # Fetch the full commit history for the push event
-          git fetch --depth=50  # Increase depth if necessary to include all relevant commits
+          # Fetch the full commit history to include all commits relevant to the push or PR
+          git fetch --prune --unshallow
 
       - name: Verify commit signatures
         run: |
-          # Get the list of commits in the push event
-          COMMITS=$(git log --format=%H --no-merges HEAD~..HEAD)
+          # Determine the range of commits based on the event type
+          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
+            # For push events, verify commits from the last pushed commit to the current HEAD
+            COMMITS=$(git log --format=%H --no-merges ${{ github.event.before }}..${{ github.sha }})
+          elif [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+            # For pull requests, verify commits from the base branch to the PR head
+            BASE_BRANCH=${{ github.event.pull_request.base.ref }}
+            HEAD_BRANCH=${{ github.event.pull_request.head.ref }}
+            git fetch origin $BASE_BRANCH
+            COMMITS=$(git log --format=%H --no-merges origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
+          else
+            echo "Unsupported event type: $GITHUB_EVENT_NAME"
+            exit 1
+          fi
 
           # Check each commit for GPG signatures
           for COMMIT in $COMMITS; do
@@ -37,4 +55,3 @@ jobs:
           done
 
           echo "All commits are signed with GPG."
-
