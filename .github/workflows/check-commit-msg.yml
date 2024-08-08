@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '*'  # Trigger for pushes to any branch
+    if: github.ref != 'refs/heads/main'  
   pull_request:
     branches:
       - main  # Trigger for PRs targeting the main branch
